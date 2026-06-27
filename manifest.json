@@ -1,0 +1,43 @@
+{
+  "manifest_version": "0.3",
+  "name": "mcp-server-template",
+  "display_name": "MCP Server Template",
+  "version": "0.1.0",
+  "description": "Template MCP server. Replace this with your server's description.",
+  "author": {
+    "name": "Grinv",
+    "email": "4070730+Grinv@users.noreply.github.com",
+    "url": "https://github.com/Grinv"
+  },
+  "homepage": "https://github.com/Grinv/mcp-server-template",
+  "documentation": "https://github.com/Grinv/mcp-server-template#readme",
+  "support": "https://github.com/Grinv/mcp-server-template/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Grinv/mcp-server-template"
+  },
+  "license": "MIT",
+  "keywords": ["mcp", "template"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": {
+        "API_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "tools_generated": false,
+  "tools": [{ "name": "search", "description": "Example tool — replace with your own." }],
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "API Key",
+      "description": "Optional. Credential for the upstream API (rename/remove as needed).",
+      "required": false,
+      "sensitive": true
+    }
+  }
+}
