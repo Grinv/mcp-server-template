@@ -11,16 +11,16 @@ export interface ToolResult {
   [key: string]: unknown;
 }
 
-/** Success result carrying both human-readable text and structured data. */
+/** Success result carrying both a text mirror and structured data.
+ *
+ * The text is compact (no indentation): MCP clients that don't read
+ * `structuredContent` fall back to this string and feed it to the model, so
+ * pretty-print whitespace would be pure token overhead. */
 export function jsonResult(structured: Record<string, unknown>): ToolResult {
   return {
-    content: [{ type: "text", text: JSON.stringify(structured, null, 2) }],
+    content: [{ type: "text", text: JSON.stringify(structured) }],
     structuredContent: structured,
   };
-}
-
-export function textResult(text: string): ToolResult {
-  return { content: [{ type: "text", text }] };
 }
 
 export function errorResult(message: string): ToolResult {
@@ -36,14 +36,15 @@ function messageFor(err: ApiError): string {
   switch (err.code) {
     case "unauthorized":
       return (
-        "MyAnimeList rejected the access token (401). It may be missing or expired. " +
-        "Re-authenticate following docs/auth.md, or set MAL_CLIENT_ID, MAL_CLIENT_SECRET " +
-        "and MAL_REFRESH_TOKEN to enable automatic token refresh."
+        "The upstream service rejected the credentials (401). They may be missing or expired — " +
+        "check the configured API key / token."
       );
     case "forbidden":
-      return "MyAnimeList denied access (403). The token may lack the required permissions.";
+      return "The upstream service denied access (403). The credentials may lack permission.";
     case "not_found":
       return "No matching resource was found (404).";
+    case "not_modified":
+      return "The content has not changed since the last request (304).";
     case "rate_limited":
       return "Upstream rate limit hit (429). Please retry in a few seconds.";
     case "server_error":

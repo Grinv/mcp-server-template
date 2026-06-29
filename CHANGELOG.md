@@ -6,6 +6,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- `RateLimiter` now supports sliding-window limits (`RateRule[]`: e.g. N/s **and**
+  M/min) on top of the minimum interval, not just a single interval.
+- `lib/http.ts` parses a structured `message`/`error` field out of JSON error
+  bodies instead of surfacing only a raw body slice.
+- `jsonResult` serializes its text mirror as compact JSON (no pretty-print
+  indentation) to save tokens for clients that feed the text to the model.
+- `classifyStatus` maps `304 → not_modified` (new code) and `405 → bad_request`.
+- Removed the unused `textResult` helper; default error messages are now generic
+  and provider-agnostic (no leftover domain-specific text).
+
 ## [0.1.0]
 
 ### Added

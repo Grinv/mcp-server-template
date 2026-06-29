@@ -130,13 +130,14 @@ export class HttpClient {
 
 async function toHttpError(res: Response): Promise<ApiError> {
   const { code, retryable } = classifyStatus(res.status);
-  let detail = "";
+  let raw = "";
   try {
-    const body = await res.text();
-    detail = body.slice(0, 500);
+    raw = await res.text();
   } catch {
     /* ignore body read errors */
   }
+  // Prefer a structured `message`/`error` field; fall back to the raw body.
+  const detail = parseErrorMessage(raw) ?? raw.slice(0, 500);
   const retryAfter = parseRetryAfter(res.headers.get("retry-after"));
   return new ApiError({
     code,
@@ -145,6 +146,21 @@ async function toHttpError(res: Response): Promise<ApiError> {
     message: `HTTP ${res.status} ${res.statusText}${detail ? `: ${detail}` : ""}`,
     ...(retryAfter === undefined ? {} : { cause: { retryAfterMs: retryAfter } }),
   });
+}
+
+// Many JSON APIs return an error envelope like { message } or { error }.
+function parseErrorMessage(raw: string): string | undefined {
+  if (!raw) return undefined;
+  try {
+    const obj: unknown = JSON.parse(raw);
+    if (obj === null || typeof obj !== "object") return undefined;
+    const rec = obj as Record<string, unknown>;
+    if (typeof rec.message === "string") return rec.message;
+    if (typeof rec.error === "string") return rec.error;
+    return undefined;
+  } catch {
+    return undefined; // not JSON — caller falls back to the raw body
+  }
 }
 
 function toNetworkError(err: unknown): ApiError {

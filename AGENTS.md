@@ -19,7 +19,7 @@ src/
   config.ts       # env → validated Config (zod)                          [domain]
   lib/            # GENERIC carcass — reuse as-is:
     http.ts       #   fetch wrapper: timeout, retries, backoff, UA, error mapping
-    rateLimit.ts  #   spacing limiter for polite upstreams
+    rateLimit.ts  #   min-interval + sliding-window limiter (e.g. N/s and M/min)
     cache.ts      #   in-memory TTL cache
     tokenStore.ts #   OAuth refresh-token persistence (use only if your API needs it)
     errors.ts     #   ApiError + status classification + secret redaction
